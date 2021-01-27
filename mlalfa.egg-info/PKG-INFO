@@ -1,0 +1,14 @@
+Metadata-Version: 1.2
+Name: mlalfa
+Version: 0.0.1.dev0
+Summary: machine learning models from alfatraining course
+Home-page: UNKNOWN
+Author: Jan Caron
+Author-email: jan.caron@web.de
+License: UNKNOWN
+Description: UNKNOWN
+Platform: UNKNOWN
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.8
