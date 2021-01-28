@@ -3,11 +3,11 @@
 # Author: J. Caron
 #
 # Implementation from Frochte - Maschinelles Lernen - 4.3.2
+# See https://scikit-learn.org/stable/modules/naive_bayes.html for more info (especially Bernoulli Naive Bayes in 1.9.4)
 #
 
 import logging
 import numpy as np
-from numpy.core.fromnumeric import shape
 
 
 class NaiveBayesNominalEstimator(object):
@@ -20,29 +20,29 @@ class NaiveBayesNominalEstimator(object):
         else:
             self.predict = self._predict_nonvectorized
 
-    def fit(self, XTrain, yTrain):
-        self._log.debug(f'\nXTrain.shape: {XTrain.shape}')
-        self._log.debug(f'\nYTrain.shape: {YTrain.shape}')
+    def fit(self, X_train, y_train):
+        self._log.debug(f'\nXTrain.shape: {X_train.shape}')
+        self._log.debug(f'\nYTrain.shape: {y_train.shape}')
         # PXI: Probability of X(symptom/feature) under the assumption of I (diagnosis/label)
-        PXI = np.zeros((2, XTrain.shape[1], 2))
+        PXI = np.zeros((2, X_train.shape[1], 2))
         self._log.debug(f'\nPXI.shape: {PXI.shape}')
         # Shape: (diagnosis is True/False, the symptoms, symptom is True/False)
-        for k in range(XTrain.shape[1]):
+        for k in range(X_train.shape[1]):
             # Number of patients with symptom k, who are diagnosed as ill:
-            PXI[1, k, 1] = np.sum(np.logical_and(XTrain[:, k], yTrain))
+            PXI[1, k, 1] = np.sum(np.logical_and(X_train[:, k], y_train))
             # Number of patients that don't show symptom k, who are diagnosed as ill:
-            PXI[1, k, 0] = np.sum(np.logical_and(np.logical_not(XTrain[:, k]), yTrain))
+            PXI[1, k, 0] = np.sum(np.logical_and(np.logical_not(X_train[:, k]), y_train))
             # Number of patients that show symptom k, who are not diagnosed as ill:
-            PXI[0, k, 1] = np.sum(np.logical_and(XTrain[:, k], np.logical_not(yTrain)))
+            PXI[0, k, 1] = np.sum(np.logical_and(X_train[:, k], np.logical_not(y_train)))
             # Number of patients that don't show symptom k, who are not diagnosed as ill:
-            PXI[0, k, 0] = np.sum(np.logical_not(np.logical_or(XTrain[:, k], yTrain)))
+            PXI[0, k, 0] = np.sum(np.logical_not(np.logical_or(X_train[:, k], y_train)))
             # DeMorgan: not A & not B = not(A or B)
         # Turn into probability (+1/2 makes sure we don't have zeros for divisions later!)
-        counts_record = XTrain.shape[0]  # Number of lines / records / entries in the training data!
+        counts_record = X_train.shape[0]  # Number of lines / records / entries in the training data!
         PXI = (PXI + 1/2) / (counts_record + 1)
         # Probability of diagnosis overall:
         PI = np.zeros(2)
-        PI[1] = np.sum(yTrain)
+        PI[1] = np.sum(y_train)
         PI[0] = counts_record - PI[1]
         PI = PI / counts_record  # now it's a probability!
         self.PXI = PXI
@@ -64,24 +64,25 @@ class NaiveBayesNominalEstimator(object):
 
     def _predict_vectorized(self, X):
         self._log.debug(f'\nX: {X.shape}\n')
-        X = X.astype(int)
-        X = np.logical_not(np.stack((X, np.logical_not(X)), axis=-1))
-        X = X[:, None, ...]
+        X = X.astype(int)  # shape: (r, f) with r: # of records/samples, f: # of symptoms/features
+        # Stack X and its logical inverse (not X)
+        X = np.stack(((1-X), X), axis=-1)  # shape: (r, f, l), l: (No symptom / Yes symptom)
         self._log.debug(f'\nX.shape: {X.shape}')
-        P = np.zeros_like(self.PI)  # probability that new patient has illness or not
-
-
-        self._log.debug(f'\n{self.PXI.shape}, *, {X.shape}')
-        temp = self.PXI * X
-        self._log.debug(f'\ntemp: {temp.shape}\n')
-        temp2 = temp.sum(axis=-1)
-        self._log.debug(f'\ntemp2: {temp2.shape}\n')
-        P = np.prod(temp2, axis=-1)
-
-        # self._log.debug((np.prod(self.PXI * X, axis=(-1, -2))).shape)
-        # P = np.prod(self.PXI * X, axis=(-1, -2)) * self.PI  # Bayes Rule counter!
-        #self._log.debug(f'\nP: {P.shape}\n{P}')
-        denominator = np.sum(P)  # Bayes Rule denominator!
-        P = P/denominator  # Combined! Denotes probability of patient [being ill, being not ill]
-        y = np.argmax(P, axis=1)  # Choose the option that's more likely!
+        X = X[:, None, :, :]  # shape: (r, 1, f, l)
+        self._log.debug(f'\nX.shape: {X.shape}')
+        P = np.zeros_like(self.PI)  # probability that new patient has illness or not, shape: (c,), c=2 (# of classes)
+        self._log.debug(f'\nP.shape: {P.shape}')
+        self._log.debug(f'\n{self.PXI.shape} * {X.shape}')
+        self._log.debug(f'\nself.PXI.shape: {self.PXI.shape}')  # PXI shape: (c, f, l)
+        weighted_X = self.PXI * X  # shape: (c, f, l) * (r, 1, f, l) = (r, c, f, l)
+        self._log.debug(f'\nweighted_X: {weighted_X.shape}')
+        weighted_X_sum = weighted_X.sum(axis=-1)  # shape: (r, c, f), sum over l, corresponds to: PIX*X + (1-PIX)*(1-X)
+        self._log.debug(f'\nweighted_X_sum: {weighted_X_sum.shape}')
+        self._log.debug(f'\nself.PI.shape: {self.PI.shape}')
+        P = np.prod(weighted_X_sum, axis=-1) * self.PI  # shape: (r, c), the product was over the features
+        self._log.debug(f'\nP.shape: {P.shape}')
+        denominator = np.sum(P)  # Bayes Rule denominator! shape: (r, c), different denominators for the c categories!
+        self._log.debug(f'\ndenominator.shape: {denominator.shape}')
+        P = P/denominator  # Combined! Denotes probability of patient [being ill, being not ill], shape: (r, c)
+        y = np.argmax(P, axis=1)  # Choose the option that's more likely! shape: (r,)
         return y

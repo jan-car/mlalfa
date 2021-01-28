@@ -18,7 +18,7 @@
 #
 # Stufe 2:
 # Schreibe die jeweils andere Variante der Klasse.
-# Schreibe das predicct für mehrere Datensätze (2-dimensional)
+# Schreibe das predict für mehrere Datensätze (2-dimensional)
 # Teste mit einem einzelnen Datensatz (1-dimensionales Array). Was musst Du vorher tun?
 #
 # Stufe 3:
@@ -54,6 +54,9 @@ logging.basicConfig(level=logging.INFO)
 np.random.seed(0)
 seaborn.set()
 
+
+# %% [markdown]
+# # Load Iris data:
 # %%
 iris = datasets.load_iris()
 _log.debug(f'\niris.keys(): \n{list(iris.keys())}')
@@ -66,7 +69,9 @@ print(iris['DESCR'])
 X_train, X_test, y_train, y_test = model_selection.train_test_split(X, y, test_size=0.2, random_state=0)
 
 
-# %% Define test function:
+# %% [markdown]
+# # Define test function:
+# %%
 def test(trained_model, X_test, y_test, verbose=True):
     y_predict = trained_model.predict(X_test)
     errors = np.sum(np.abs(y_predict - y_test))
@@ -79,18 +84,25 @@ def test(trained_model, X_test, y_test, verbose=True):
     return error_rate
 
 
-# %% Simple implementation:
+# %% [markdown]
+# # Simple implementation:
+# %%
 model = KNearestNeighborClassifier(vectorized=True)
 model.fit(X_train, y_train)
 test(model, X_test, y_test)
 
 
-# %% Weighted Implementation:
+# %% [markdown]
+# # Weighted Implementation:
+# %%
 model = KNearestNeighborWeightedClassifier()
 model.fit(X_train, y_train)
 test(model, X_test, y_test)
 
-# %% Look at different test/train split fractions and different numbers of k neighbors!
+
+# %% [markdown]
+# # Look at different test/train split fractions and different numbers of k neighbors!
+# %%
 fracs = np.linspace(0.1, 0.9, 100)
 for k in range(2, 6):
     error_rates = []
