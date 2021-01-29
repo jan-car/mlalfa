@@ -23,7 +23,8 @@
 #
 # Stufe 3:
 # Schreibe danach eine Variante, die im Predict keinen Mehrheitsentscheid benutzt.
-# Sondern berechne eine Voraussage,die von der Häufigkeit der Klassen und dem Abstand der Nachbarn in der k-Nachbarschaft abhängt.
+# Sondern berechne eine Voraussage,die von der Häufigkeit der Klassen und dem Abstand der Nachbarn in der
+# k-Nachbarschaft abhängt.
 # Die Klasse des Nachbars soll um so wichtiger sein, je näher dieser an xQuery liegt.
 # Schau dir die Qualität der Voraussage mit verschiedenen Werten von k an.
 #
@@ -111,7 +112,9 @@ for k in range(2, 6):
         model = KNearestNeighborWeightedClassifier(k=k, smear=1)
         model.fit(X_train, y_train)
         error_rates.append(test(model, X_test, y_test, verbose=False))
-    plt.plot(fracs, error_rates, label=k)
+    plt.plot(fracs*100, np.asarray(error_rates)*100, label=k)
 plt.legend()
+plt.xlabel('test fraction [%]')
+plt.ylabel('error rate [%]')
 
 # %%
