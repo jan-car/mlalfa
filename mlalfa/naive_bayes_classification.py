@@ -47,6 +47,7 @@ class NaiveBayesNominalEstimator(object):
         PI = PI / counts_record  # now it's a probability!
         self.PXI = PXI
         self.PI = PI
+        return self
 
     def _predict_nonvectorized(self, X):
         choosenClasses = []

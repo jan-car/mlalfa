@@ -23,6 +23,7 @@ class LinearRegressor(object):
         self.rank_D = rank_D  # rank of the design matrix A!
         self.sv_D = sv_D  # singular values of the design matrix A!
         self._log.debug(f'\nrank_D: {rank_D}')
+        return self
 
     def predict(self, X):
         D = self._create_design_matrix(X)

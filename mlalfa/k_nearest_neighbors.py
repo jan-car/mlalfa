@@ -33,6 +33,7 @@ class KNearestNeighborClassifier(object):
         self._log.debug(f'\nX_train.shape: {self.X_train.shape}')
         self.y_train = y_train
         self._log.debug(f'\nunique_labels: {np.unique(y_train)}')
+        return self
 
     def _predict_non_vectorized(self, X):
         y_predict = []
