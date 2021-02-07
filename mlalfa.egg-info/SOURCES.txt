@@ -1,6 +1,10 @@
 setup.py
 mlalfa/__init__.py
+mlalfa/decision_tree.py
+mlalfa/k_nearest_neighbors.py
+mlalfa/linear_regression.py
 mlalfa/naive_bayes_classification.py
+mlalfa/neural_networks.py
 mlalfa.egg-info/PKG-INFO
 mlalfa.egg-info/SOURCES.txt
 mlalfa.egg-info/dependency_links.txt

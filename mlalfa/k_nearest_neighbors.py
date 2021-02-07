@@ -52,7 +52,6 @@ class KNearestNeighborClassifier(object):
             # Count how many of those belong to which classification:
             classification, counts = np.unique(knn_labels, return_counts=True)
             y_predict.append(classification[np.argmax(counts)])
-        self._log.debug(f'\ndiff.shape: {diff.shape}')
         return np.asarray(y_predict)
 
     def _predict_vectorized(self, X):
