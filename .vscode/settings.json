@@ -1,3 +1,9 @@
 {
-    "python.pythonPath": "C:\\Users\\Jan\\Anaconda3\\envs\\mlalfa\\python.exe"
+    "python.pythonPath": "C:\\Users\\Jan\\Anaconda3\\envs\\mlalfa\\python.exe",
+    "extensions.ignoreRecommendations": true,
+    "files.autoSave": "off",
+    "typescript.tsc.autoDetect": "off",
+    "npm.autoDetect": "off",
+    "debug.allowBreakpointsEverywhere": true,
+    "html.autoClosingTags": false
 }

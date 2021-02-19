@@ -209,4 +209,3 @@ y_pred = model.predict(X_pca)
 plt.scatter(X_pca[:, 0], X_pca[:, 1], s=20, c=y_pred, cmap='Dark2')
 plt.title(f'{model.__class__.__name__} with {n_clusters} clusters')
 plt.text(.99, .01, ('%.2fs' % (t1-t0)).lstrip('0'), transform=plt.gca().transAxes, horizontalalignment='right')
-# %%
